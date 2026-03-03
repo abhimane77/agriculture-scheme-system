@@ -7,6 +7,9 @@ import com.agriculture.backend.repository.FarmerRepository;
 import com.agriculture.backend.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -16,23 +19,46 @@ public class AdminController {
     private final FarmerRepository farmerRepository;
     private final AdminRepository adminRepository;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public AdminController(FarmerRepository farmerRepository,
                            AdminRepository adminRepository,
-                           JwtUtil jwtUtil) {
+                           JwtUtil jwtUtil,
+                           PasswordEncoder passwordEncoder) {
         this.farmerRepository = farmerRepository;
         this.adminRepository = adminRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
+    // =========================
+    // ✅ ADMIN REGISTER
+    // =========================
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Admin admin) {
+
+        if (adminRepository.findByEmail(admin.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Admin already exists");
+        }
+
+        admin.setRole("ROLE_ADMIN");
+        admin.setPassword(passwordEncoder.encode(admin.getPassword())); // 🔐 BCrypt
+
+        Admin savedAdmin = adminRepository.save(admin);
+        return ResponseEntity.ok(savedAdmin);
+    }
+
+    // =========================
     // 🔐 ADMIN LOGIN
+    // =========================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Admin admin) {
 
         Admin dbAdmin = adminRepository.findByEmail(admin.getEmail())
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        if (!dbAdmin.getPassword().equals(admin.getPassword())) {
+        // ✅ BCrypt password check
+        if (!passwordEncoder.matches(admin.getPassword(), dbAdmin.getPassword())) {
             return ResponseEntity.badRequest().body("Invalid password");
         }
 
@@ -41,10 +67,17 @@ public class AdminController {
                 dbAdmin.getRole()
         );
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(
+                Map.of(
+                        "token", token,
+                        "role", dbAdmin.getRole()
+                )
+        );
     }
 
-    // ✅ VERIFY FARMER
+    // =========================
+    // ✅ VERIFY FARMER (ADMIN ONLY)
+    // =========================
     @PutMapping("/verify/{farmerId}")
     public ResponseEntity<?> verifyFarmer(@PathVariable String farmerId) {
 

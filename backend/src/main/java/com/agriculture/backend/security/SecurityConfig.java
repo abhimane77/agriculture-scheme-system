@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
+                                "/api/admin/register",
                                 "/api/hello",
                                 "/api/farmers/register",
                                 "/api/farmers/login",
