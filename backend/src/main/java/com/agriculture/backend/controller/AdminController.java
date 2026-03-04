@@ -89,4 +89,24 @@ public class AdminController {
 
         return ResponseEntity.ok("Farmer verified successfully");
     }
+    // =========================
+// 📋 GET ALL FARMERS
+// =========================
+    @GetMapping("/farmers")
+    public ResponseEntity<?> getAllFarmers() {
+        return ResponseEntity.ok(farmerRepository.findAll());
+    }
+
+    // =========================
+// ⏳ GET PENDING FARMERS
+// =========================
+    @GetMapping("/pending-farmers")
+    public ResponseEntity<?> getPendingFarmers() {
+        return ResponseEntity.ok(
+                farmerRepository.findAll()
+                        .stream()
+                        .filter(farmer -> !farmer.isVerified())
+                        .toList()
+        );
+    }
 }

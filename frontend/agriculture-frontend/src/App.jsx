@@ -7,6 +7,9 @@ import Login from "./components/auth/Login";
 import FarmerDashboard from "./components/farmer/FarmerDashboard";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import api from "./services/api";
+import Register from "./components/auth/Register";
+import FarmerApproval from "./components/admin/FarmerApproval";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const [msg, setMsg] = useState("");
@@ -31,6 +34,15 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+  path="/admin/farmers"
+  element={
+    <ProtectedRoute role="ADMIN">
+      <FarmerApproval />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );

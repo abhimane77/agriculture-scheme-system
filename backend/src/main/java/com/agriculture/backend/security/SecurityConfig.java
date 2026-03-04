@@ -39,7 +39,11 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
+                        // Allow preflight requests
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Public endpoints
                         .requestMatchers(
                                 "/api/admin/register",
                                 "/api/hello",
@@ -49,9 +53,15 @@ public class SecurityConfig {
                                 "/api/auth/**"
                         ).permitAll()
 
-                        .requestMatchers("/api/admin/**", "/api/schemes/**")
+                        // ADMIN endpoints
+                        .requestMatchers("/api/admin/**")
                         .hasAuthority("ROLE_ADMIN")
 
+                        // Schemes accessible to ADMIN and FARMER
+                        .requestMatchers("/api/schemes/**")
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_FARMER")
+
+                        // Farmer-only endpoints
                         .requestMatchers(
                                 "/api/farmers/recommendations/**",
                                 "/api/farmers/notifications/**"
@@ -68,13 +78,11 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ PASSWORD ENCODER (THIS FIXES YOUR ISSUE)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ❌ Disable default Spring Security user
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
