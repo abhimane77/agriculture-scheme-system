@@ -8,7 +8,7 @@ function ProtectedRoute({ children, role }) {
     return <Navigate to="/login" />;
   }
 
-  if (role && userRole !== `ROLE_${role}`) {
+  if (role && userRole !== role) {
     return <Navigate to="/login" />;
   }
 

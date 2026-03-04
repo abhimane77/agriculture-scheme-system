@@ -86,7 +86,9 @@ public class FarmerController {
         return ResponseEntity.ok(
                 Map.of(
                         "token", token,
-                        "role", dbFarmer.getRole()
+                        "role", dbFarmer.getRole(),
+                        "name", dbFarmer.getName(),      // ⭐ farmer name
+                        "farmerId", dbFarmer.getId()    // ⭐ farmer id
                 )
         );
     }

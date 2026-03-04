@@ -45,6 +45,8 @@ function Login() {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
+      localStorage.setItem("farmerId", res.data.farmerId);
+      localStorage.setItem("farmerName", res.data.name);
 
       if (res.data.role === "ROLE_ADMIN") {
         navigate("/admin/dashboard");
